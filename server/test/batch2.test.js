@@ -1,0 +1,13 @@
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { makeSlug, createWithUniqueSlug } from '../src/services/slugs.js';
+import { deterministicCheck, moderate } from '../src/services/moderation.js';
+import { adviceSchema } from '../src/validation/schemas.js';
+
+afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
+describe('batch 2 safeguards', () => {
+  it('generates a readable random slug including a fallback for non-Latin titles', () => { expect(makeSlug('A Little Book of Advice')).toMatch(/^a-little-book-of-advice-[a-f0-9]{10}$/); expect(makeSlug('नमस्ते')).toMatch(/^notebook-[a-f0-9]{10}$/); });
+  it('retries genuine slug index collisions a limited number of times', async () => { const duplicate = { code: 11000, keyPattern: { slug: 1 } }; const model = { create: vi.fn().mockRejectedValueOnce(duplicate).mockResolvedValueOnce({ slug: 'second' }) }; const generate = vi.fn().mockReturnValueOnce('first').mockReturnValueOnce('second'); expect((await createWithUniqueSlug(model, { title: 'Hi' }, generate)).slug).toBe('second'); expect(model.create).toHaveBeenCalledTimes(2); const failing = { create: vi.fn().mockRejectedValue(duplicate) }; await expect(createWithUniqueSlug(failing, { title: 'Hi' }, generate)).rejects.toEqual(duplicate); expect(failing.create).toHaveBeenCalledTimes(5); });
+  it('validates advice length', () => { const submissionId = '00000000-0000-4000-8000-000000000000'; expect(adviceSchema.safeParse({ text: '  ', submissionId }).success).toBe(false); expect(adviceSchema.safeParse({ text: 'a'.repeat(1501), submissionId }).success).toBe(false); expect(adviceSchema.safeParse({ text: 'A little kind advice', submissionId }).success).toBe(true); });
+  it('flags links, personal data and repetition without changing text', () => { expect(deterministicCheck('Please visit https://example.com now')).toBeTruthy(); expect(deterministicCheck('My email is a@example.com')).toBeTruthy(); expect(deterministicCheck('hello hello hello hello hello')).toBeTruthy(); expect(deterministicCheck('Stop giving a damn about what everyone thinks.')).toBeNull(); });
+  it('fails closed if the provider fails or its response is invalid', async () => { vi.stubEnv('OPENAI_API_KEY', 'test'); vi.stubEnv('OPENAI_MODERATION_MODEL', 'test'); vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline'))); expect((await moderate('You are worthless and nobody likes you.')).status).toBe('needs_review'); vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ choices: [{ message: { content: '{"decision":"approved"}' } }] }) })); expect((await moderate('Some thoughtful advice goes here.')).status).toBe('needs_review'); });
+});

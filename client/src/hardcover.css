@@ -1,0 +1,52 @@
+/* Notebook reader only: the rest of the site's palette and layout stay unchanged. */
+.public-wrap .public-book { background: transparent; border: 0; padding: 0; box-shadow: none; }
+.public-wrap .public-book-inner { border: 0; padding: 0; min-height: 0; overflow-wrap: normal; }
+.public-wrap .reader-description { margin: 0 auto 30px; max-width: 560px; }
+.physical-reader { --page-w: min(39vw, 340px); --page-h: calc(var(--page-w) * 1.36); width: 100%; margin: 0 auto; text-align: center; }
+.book-object { position: relative; width: calc(var(--page-w) * 2); height: var(--page-h); margin: 0 auto; perspective: 2200px; transform: translateX(calc(var(--page-w) / -2)); transition: transform .8s ease; }
+.book-object-open { transform: translateX(0); }
+.book-back-cover { position: absolute; inset: -8px -8px -8px calc(var(--page-w) - 8px); background: #788c72; border-radius: 8px 12px 12px 8px; box-shadow: 0 17px 28px #3c463a42, 0 4px 4px #34433030; transition: left .8s ease; }
+.book-object-open .book-back-cover { left: -8px; }
+.book-left-page, .book-right-page, .book-measure-page { position: absolute; top: 0; width: var(--page-w); height: var(--page-h); }
+.book-left-page, .book-right-page { z-index: 2; }
+.book-left-page { left: 0; visibility: hidden; border-radius: 5px 0 0 5px; background: linear-gradient(90deg, #efe9db 0%, #faf7ec 18%, #faf7ec 86%, #d9d0be 100%); box-shadow: inset -7px 0 12px -10px #554b3f, -4px 3px 0 #e3ddcf, -7px 5px 0 #f4f0e6; }
+.book-object-open .book-left-page { visibility: visible; }
+.book-right-page { left: var(--page-w); border-radius: 0 5px 5px 0; background: linear-gradient(90deg, #dfd8c9 0%, #faf7ec 13%, #faf7ec 93%, #f0ebdf 100%); box-shadow: inset 8px 0 12px -11px #554b3f, 4px 3px 0 #e3ddcf, 7px 5px 0 #f4f0e6; }
+.book-page-content { position: absolute; inset: 0; }
+.book-page-text, .book-page-empty { position: absolute; top: 11%; bottom: 12%; left: 12%; right: 12%; text-align: left; font: 19px/1.5 Georgia, serif; color: #4f5549; white-space: pre-wrap; overflow-wrap: anywhere; overflow: auto; }
+.book-page-empty { display: flex; align-items: center; color: #8c9083; font-style: italic; }
+.book-page-number { position: absolute; bottom: 5%; left: 0; right: 0; text-align: center; color: #aaa698; font: 11px Georgia, serif; }
+.book-page-ornament { position: absolute; top: 48%; left: 0; right: 0; text-align: center; color: #d4d7c9; font-size: 18px; }
+.book-measure-page { left: var(--page-w); visibility: hidden; pointer-events: none; }
+.book-measure-text { overflow: hidden; }
+.book-cover-hinge { position: absolute; z-index: 5; top: -8px; bottom: -8px; left: calc(var(--page-w) - 3px); width: calc(var(--page-w) + 11px); transform-style: preserve-3d; transform-origin: left center; transition: transform .8s cubic-bezier(.25,.65,.3,1); }
+.book-object-open .book-cover-hinge { transform: rotateY(-180deg); z-index: 1; transition: transform .8s cubic-bezier(.25,.65,.3,1), z-index 0s .8s; }
+.book-cover-front, .book-cover-inside { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 2px 9px 9px 2px; }
+.book-cover-front { width: 100%; height: 100%; padding: 15%; display: flex; align-items: center; justify-content: center; color: #edf0e5; border: 0; border-left: 13px solid #667d61; text-align: center; background-color: #82967a; background-image: repeating-linear-gradient(0deg,#ffffff0b 0px,#ffffff0b 1px,transparent 1px,transparent 4px), repeating-linear-gradient(90deg,#253e220a 0px,#253e220a 1px,transparent 1px,transparent 3px); box-shadow: inset 7px 0 12px #344d342e, inset -2px 0 4px #d2ddc933, 4px 3px 8px #3e4a3830; }
+.book-cover-front span { font: clamp(24px, 3.4vw, 38px)/1.15 Georgia, serif; overflow-wrap: anywhere; max-height: 90%; overflow: auto; text-shadow: 0 1px 1px #f0f3e7ad, 0 -1px 0 #45563d; }
+.book-cover-inside { background: #a8b29c; transform: rotateY(180deg); box-shadow: inset -7px 0 12px #53634b2b; }
+.book-object-open .book-cover-front { pointer-events: none; }
+.book-turning-leaf { position: absolute; z-index: 4; top: 0; left: var(--page-w); width: var(--page-w); height: var(--page-h); transform-origin: left center; transform-style: preserve-3d; pointer-events: none; }
+.book-leaf-front, .book-leaf-back { position: absolute; inset: 0; backface-visibility: hidden; background: #faf7ec; box-shadow: 4px 2px 13px #4a43302b; }
+.book-leaf-back { transform: rotateY(180deg); background: #f7f3e7; }
+.book-turn-next .book-turning-leaf { animation: turn-next .68s ease-in-out both; }
+.book-turn-previous .book-turning-leaf { animation: turn-previous .68s ease-in-out both; }
+@keyframes turn-next { from { transform: rotateY(0deg); } to { transform: rotateY(-180deg); } }
+@keyframes turn-previous { from { transform: rotateY(-180deg); } to { transform: rotateY(0deg); } }
+.book-controls { min-height: 66px; max-width: 600px; margin: 22px auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; font-size: 12px; color: #64715b; visibility: hidden; }
+.book-controls-open { visibility: visible; }
+.book-controls button:first-child { text-align: left; }.book-controls button:nth-child(3) { text-align: right; }
+.book-controls button[aria-disabled="true"] { opacity: .35; cursor: default; }.book-controls span, .book-translation-label { color: #8b8e82; font-size: 11px; }
+.book-close { grid-column: 1 / -1; justify-self: center; text-decoration: underline; }
+@media (max-width: 640px) {
+  .physical-reader { --page-w: min(76vw, 340px); }
+  .book-object { width: var(--page-w); transform: none; margin: 0 auto; }
+  .book-back-cover, .book-object-open .book-back-cover { left: -7px; right: -7px; }
+  .book-left-page { display: none; }
+  .book-right-page, .book-measure-page, .book-turning-leaf { left: 0; }
+  .book-cover-hinge { left: -3px; }
+  .physical-reader { overflow: hidden; }
+  .book-page-text, .book-page-empty { left: 11%; right: 11%; }
+  .book-cover-front span { font-size: clamp(24px, 7vw, 36px); }
+}
+@media (prefers-reduced-motion: reduce) { .book-object, .book-cover-hinge, .book-back-cover { transition: none; }.book-turning-leaf { animation-duration: 0s !important; } }
