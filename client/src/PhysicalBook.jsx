@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { buildSpreads } from './paginateText';
+import ReadAloud from './ReadAloud';
 
 function Page({ page, number, empty = false }) {
   return <div className="book-page-content">{page && <><div className="book-page-text" style={{ fontSize: `${page.fontSize}px` }} lang={page.language || undefined}>{page.text}</div><span className="book-page-number">{number}</span></>}{empty && <div className="book-page-empty">No advice pages have been added yet. Every story starts with an empty page.</div>}</div>;
 }
 
-export default function PhysicalBook({ title, advice, total, open, onOpen, onClose, loadAdvice, disabled }) {
+export default function PhysicalBook({ title, slug, advice, total, open, onOpen, onClose, loadAdvice, disabled }) {
   const frame = useRef(null), measure = useRef(null), cover = useRef(null), close = useRef(null), timer = useRef(null), lock = useRef(false), mounted = useRef(true), focusAfterCover = useRef(false);
   const entries = useRef(advice ? [advice] : []), physical = useRef([]), loadedAll = useRef(total <= (advice ? 1 : 0)), loadRef = useRef(loadAdvice);
   const [pages, setPages] = useState([]), [position, setPosition] = useState(0), [turn, setTurn] = useState(null), [busy, setBusy] = useState(false), [error, setError] = useState(''), [coverMoving, setCoverMoving] = useState(false);
@@ -70,6 +71,7 @@ export default function PhysicalBook({ title, advice, total, open, onOpen, onClo
     } catch { if (mounted.current) { setError('Could not load the next page. Please try again.'); setBusy(false); lock.current = false; } }
   }
   function keyDown(event) {
+    if (event.target.closest('input, select, textarea, button')) return;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); navigate(event.key === 'ArrowLeft' ? -1 : 1); }
   }
   const turningForward = turn?.direction === 1, turningBack = turn?.direction === -1;
@@ -82,17 +84,19 @@ export default function PhysicalBook({ title, advice, total, open, onOpen, onClo
     <div className={`book-object ${open ? 'book-object-open' : ''} ${turn ? `book-turn-${turn.direction > 0 ? 'next' : 'previous'}` : ''}`} ref={frame}>
       <div className="book-back-cover" aria-hidden="true"/>
       <div className="book-left-page" aria-hidden="true"><span className="book-page-ornament">✳</span>{total > 0 && <span className="book-page-number">{position * 2 + 1}</span>}</div>
-      <div className="book-right-page" aria-hidden={!open}><Page page={underneath} number={(turn ? target : position) * 2 + 2} empty={!total}/></div>
+      <div className="book-right-page" aria-hidden="true"><Page page={underneath} number={(turn ? target : position) * 2 + 2} empty={!total}/></div>
       {turn && <div className="book-turning-leaf" aria-hidden="true"><div className="book-leaf-front"><Page page={leafFront} number={(turningBack ? target : position) * 2 + 2}/></div><div className="book-leaf-back"><span className="book-page-ornament">✳</span><span className="book-page-number">{(turningForward ? target : position) * 2 + 1}</span></div></div>}
       <div className="book-measure-page" aria-hidden="true"><div className="book-page-text book-measure-text" ref={measure}/></div>
       <div className="book-cover-hinge"><button ref={cover} type="button" className="book-cover-front" onClick={() => changeCover(true)} aria-label={`Open notebook: ${title}`} tabIndex={open ? -1 : 0}><span>{title}</span></button><div className="book-cover-inside" aria-hidden="true"/></div>
     </div>
+    {open && <div className="sr-only" role="status" aria-live="polite">{right ? `Advice ${right.entryIndex + 1} of ${total}, part ${right.partIndex + 1} of ${right.partCount}: ${right.text}` : 'No approved advice yet.'}</div>}
     <div className={`book-controls ${open ? 'book-controls-open' : ''}`} aria-hidden={!open}>
-      <button type="button" onClick={() => navigate(-1)} aria-disabled={!open || coverMoving || busy || !!turn || position === 0} tabIndex={open ? 0 : -1} aria-label="Previous pages">← Previous</button>
+      <button type="button" onClick={() => navigate(-1)} disabled={!open || coverMoving || busy || !!turn || position === 0} tabIndex={open ? 0 : -1} aria-label="Previous advice page">← Previous</button>
       <span aria-live="polite">{busy ? 'Opening pages…' : !total ? 'Empty notebook' : right ? `Advice ${right.entryIndex + 1} of ${total}${right.partCount > 1 ? ` · Part ${right.partIndex + 1} of ${right.partCount}` : ''} · Pages ${position * 2 + 1}–${position * 2 + 2}` : 'Preparing pages…'}</span>
-      <button type="button" onClick={() => navigate(1)} aria-disabled={!open || coverMoving || busy || !!turn || !total || !canNext} tabIndex={open ? 0 : -1} aria-label="Next pages">Next →</button>
-      <button ref={close} type="button" className="book-close" onClick={() => changeCover(false)} aria-disabled={!open || busy || !!turn} tabIndex={open ? 0 : -1}>Close notebook</button>
+      <button type="button" onClick={() => navigate(1)} disabled={!open || coverMoving || busy || !!turn || !total || !canNext} tabIndex={open ? 0 : -1} aria-label="Next advice page">Next →</button>
+      <button ref={close} type="button" className="book-close" onClick={() => changeCover(false)} disabled={!open || busy || !!turn} tabIndex={open ? 0 : -1}>Close notebook</button>
     </div>
+    {open && right && !turn && !busy && <ReadAloud key={`${position}-${right.text}-${right.language}`} slug={slug} adviceNumber={right.entryIndex + 1} page={right}/>}
     {open && pages[position]?.translated && <p className="book-translation-label">Translated text</p>}
     {error && <p className="error" role="alert">{error}</p>}
   </section>;

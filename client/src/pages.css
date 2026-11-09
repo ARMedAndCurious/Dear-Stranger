@@ -14,6 +14,25 @@
 }
 
 .page-for-you { max-width: 820px; margin: 0 auto; padding: 4rem 1.5rem 6rem; text-align: center; }
+.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 100; background: #f7f4eb; padding: 1rem; border: 2px solid #394b36; }
+.skip-link:focus { top: 1rem; }
+.main-focus:focus { outline: none; }
+.header nav { flex-wrap: wrap; justify-content: flex-end; gap: 12px 22px; }
+.hero-choices { display: grid; gap: 24px; max-width: 440px; }
+.hero-choices p { margin-top: 9px; color: #51594a; font-size: 13px; line-height: 1.5; }
+.hero-choices .text-button { display: inline-block; padding: 8px 0; text-decoration: underline; }
+.cover-bottom { align-items: end; flex-wrap: wrap; }
+.cover-actions { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; letter-spacing: 0; }
+.cover-actions a { text-decoration: underline; text-underline-offset: 3px; }
+.contribution { margin-top: 25px; scroll-margin-top: 2rem; }
+.contribution h2 { font-size: 24px; margin-bottom: 10px; }
+.read-aloud { max-width: 680px; margin: 12px auto; display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.read-aloud button { border: 1px solid #69775f; padding: 9px 12px; color: #344b34; background: #faf8ef; }
+.read-aloud p { flex-basis: 100%; color: #4a5a46; min-height: 1.4em; }
+.muted, .small-note { color: #515b4e; }
+.eyebrow { color: #52624b; }
+.cover-description { color: #414f42; }
+@media (max-width: 700px) { .header { flex-wrap: wrap; padding: 14px 5%; } .header nav { width: 100%; justify-content: flex-start; } .hero-choices { max-width: 100%; } }
 .page-for-you .page-back { display: block; text-align: left; margin-bottom: 3rem; }
 .page-for-you h1 { font-size: clamp(2.7rem, 7vw, 5rem); line-height: 1.1; }
 .page-for-you h1 em { color: #657660; }

@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import notebookRoutes from './routes/notebooks.js';
 import speechRoutes from './routes/speech.js';
 import adviceRoutes from './routes/advice.js';
+import ttsRoutes from './routes/tts.js';
 import { csrfProtection, errorHandler } from './middleware/index.js';
 
 export function createApp({ store, secret, clientOrigin, production = false }) {
@@ -22,6 +23,7 @@ export function createApp({ store, secret, clientOrigin, production = false }) {
   app.use('/api/auth', authRoutes);
   app.use('/api/speech', speechRoutes);
   app.use('/api/advice', adviceRoutes);
+  app.use('/api/tts', ttsRoutes);
   app.use('/api/notebooks', notebookRoutes);
   app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
   app.use(errorHandler);

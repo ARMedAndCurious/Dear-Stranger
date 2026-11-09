@@ -11,7 +11,7 @@ async function translateEntry(entry, target) {
     if (!translatedText) {
       try {
         translatedText = await translate(entry.originalText, target, entry.originalLanguage);
-        const review = await moderate(translatedText);
+        const review = await moderate(translatedText, { translationOf: entry.originalText });
         if (review.status !== 'approved') throw new Error('Translation needs review');
         const updated = await Advice.updateOne({ _id: entry._id, moderationStatus: 'approved', originalText: entry.originalText }, { $set: { [`translations.${target}`]: translatedText } });
         if (!updated.matchedCount) return { unavailable: true };

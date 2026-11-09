@@ -5,6 +5,19 @@ import { explore } from '../src/controllers/notebooks.js';
 
 afterEach(() => vi.restoreAllMocks());
 describe('public discovery query', () => {
+  it('combines category, search and pagination without exposing unlisted notebooks', async () => {
+    const count = vi.spyOn(Notebook, 'countDocuments').mockResolvedValue(0);
+    const find = vi.spyOn(Notebook, 'find').mockReturnValue({ select: () => ({ sort: () => ({ skip: () => ({ limit: () => ({ lean: async () => [] }) }) }) }) });
+    vi.spyOn(Advice, 'aggregate').mockResolvedValue([]);
+    const res = { json: vi.fn(), status: vi.fn().mockReturnThis() };
+    await explore({ query: { category: 'Family', search: 'Care', page: '2' } }, res);
+    const filter = { visibility: 'public', category: 'Family', title: { $regex: 'Care', $options: 'i' } };
+    expect(find).toHaveBeenCalledWith(filter); expect(count).toHaveBeenCalledWith(filter);
+    await explore({ query: { category: 'Uncategorized' } }, res);
+    expect(find).toHaveBeenLastCalledWith({ visibility: 'public', category: { $exists: false } });
+    await explore({ query: { category: 'not-a-category' } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
   it('uses public visibility without an owner filter, including for anonymous visitors', async () => {
     const count = vi.spyOn(Notebook, 'countDocuments').mockResolvedValue(13);
     const result = [{ _id: 'one', slug: 'first', title: 'First' }, { _id: 'two', slug: 'second', title: 'Second' }];

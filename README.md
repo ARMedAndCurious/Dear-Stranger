@@ -20,15 +20,18 @@ Voice recordings are sent to Gnani for transcription, but the application does n
 
 ## Features
 
-- **Personal notebooks:** Create and manage a notebook with an automatically generated, shareable link.
-- **Public discovery:** Explore and search notebooks marked public. Unlisted notebooks are accessible through their links but do not appear in Explore.
+- **Personal notebooks:** Create and manage a notebook with an automatically generated, shareable link and an optional notebook category. Visibility still defaults to unlisted when creating a notebook.
+- **Public discovery:** Explore and search public notebooks by title or category. Existing notebooks without a category appear as “Uncategorized.” Unlisted notebooks remain accessible only through their links.
 - **Anonymous contributions:** Visitors can submit written advice without an account or name.
 - **Speech to text:** Record a short message for Gnani AI Prisma transcription, then edit the transcript before submission.
 - **Multilingual reading:** Request translations into English, Hindi, Kannada, Tamil, Bengali, Gujarati, Malayalam, Marathi, Punjabi, or Telugu. Original text remains available.
 - **Moderation and review:** Automated checks and Groq-assisted moderation process submissions; owners can approve, reject, or remove advice.
 - **A diary to read:** Open a green hardcover and turn through spreads with a decorative left page and one advice entry on the right. Longer entries continue on subsequent spreads.
+- **Read Aloud:** One **Listen** control tries Gnani Timbre v2.5 first, then automatically uses a matching browser voice if Gnani is unavailable. Pause, resume, or stop playback; speech stops when you turn a page, switch languages, or close the reader. Provider speech has not yet been verified with an authenticated TTS request.
+- **Clear paths to contribute:** From Explore, use **Read notebook** or **Leave advice** to jump directly to the anonymous contribution form. The homepage separates **Explore Notebooks** from **Create Your Notebook**.
 - **A Page for You:** Discover a randomly selected approved entry from a public notebook at `/a-page-for-you`.
 - **Responsive interface:** Layouts adapt to smaller screens, and the reader respects reduced-motion preferences.
+- **Accessibility improvements:** Skip link, labeled navigation and controls, visible keyboard focus, accessible reader text, and announcements for page changes and audio status. This is not a claim of accessibility certification.
 
 ## How It Works
 
@@ -47,7 +50,7 @@ Advice is initially saved as pending. Deterministic checks and, when configured,
 | Frontend | React, React Router and Vite for the interface and client-side navigation; CSS and Tailwind tooling for styling |
 | Backend | Node.js and Express for the API; Zod for validation, sessions and bcrypt for account authentication |
 | Data | MongoDB and Mongoose for notebooks, advice, accounts and sessions, with `connect-mongo` for the session store |
-| Speech | Gnani AI Prisma v3 speech-to-text |
+| Speech | Gnani AI Prisma v3 speech-to-text; Gnani Timbre v2.5 text-to-speech when available; optional browser speech synthesis |
 | Translation | Google Cloud Translation Basic v2 |
 | Moderation | Deterministic checks and Groq's OpenAI-compatible chat-completions API |
 | Quality | ESLint, Vitest, Supertest and `mongodb-memory-server` |
@@ -122,7 +125,7 @@ The root `.env.example` lists the application's configuration. Values belong on 
 | `CLIENT_ORIGIN` | Yes | Allowed frontend origin for CORS. Must start with `https://` when `NODE_ENV=production`. |
 | `PORT` | No | API port; defaults to `4000`. |
 | `NODE_ENV` | No | Use `production` for production cookie and proxy behavior. |
-| `GNANI_API_KEY` | For speech | Gnani API key. Without it, transcription is unavailable; typed submissions remain available. |
+| `GNANI_API_KEY` | For speech | Gnani key for Prisma transcription and, if permitted by the key's scope, Timbre v2.5 Read Aloud. Without it, provider speech is unavailable; typed submissions and a matching browser voice may still work. |
 | `GOOGLE_TRANSLATE_API_KEY` | For new translations | Google Cloud Translation API key. Without it, new translations are unavailable; cached translations and original text can still be used. |
 | `OPENAI_API_KEY` | For automated moderation | A **Groq API key**, not an OpenAI API key. |
 | `OPENAI_MODERATION_MODEL` | For automated moderation | The configured Groq model identifier. Both moderation variables are required for automated model review. |
@@ -185,11 +188,13 @@ The API integration suite uses `mongodb-memory-server` unless `TEST_MONGODB_URI`
 - The application is deployed and the project owner reports successfully testing its core functionality manually. The frontend and backend discovery endpoint responded during this README update; an attempted Hindi translation returned the original with a translation-unavailable message. Provider availability, credentials, quotas and rate limits can affect AI features.
 - Speech recordings are limited to short clips of up to approximately 30 seconds. Supported languages and provider quality may vary.
 - Translation and moderation can fail or make mistakes. The application falls back to original text when a requested translation cannot be safely returned.
+- Gnani TTS requires an API key with TTS permissions. The documented integration has unit tests with mocked audio, but a real authenticated TTS request, playback, and specific languages have not yet been verified. Browser fallback only uses a voice matching the displayed text's known language; available voices vary by device.
+- Automated accessibility checks and a comprehensive screen-reader audit are still needed; keyboard and mobile playback require on-device verification.
 - Unlisted notebooks are link-accessible, not private or access-controlled. The current interface does not provide an owner-controlled visibility change after creation.
 
 ## Future Improvements
 
-Potential next steps include accessibility refinements, stronger moderation and review tools, and additional language support. These are ideas, not current features.
+Potential next steps include a full accessibility audit, stronger moderation and review tools, and additional language support. These are ideas, not current features.
 
 ## Internship Challenge
 

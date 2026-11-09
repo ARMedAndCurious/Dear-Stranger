@@ -15,6 +15,7 @@ test('continuations stay together before the next advice', () => {
   const first = spreads.filter(page => page.entryIndex === 0);
   assert.ok(first.length > 1);
   assert.equal(first.map(page => page.text).join(''), text);
+  assert.ok(first.every(page => text.slice(page.offset, page.offset + page.text.length) === page.text));
   assert.deepEqual(first.map(page => page.partIndex), first.map((_, i) => i));
   assert.ok(first.every(page => page.partCount === first.length));
   assert.equal(spreads.at(-1).text, 'next');

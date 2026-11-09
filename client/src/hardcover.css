@@ -17,6 +17,7 @@
 .book-page-empty { display: flex; align-items: center; color: #8c9083; font-style: italic; }
 .book-page-number { position: absolute; bottom: 5%; left: 0; right: 0; text-align: center; color: #aaa698; font: 11px Georgia, serif; }
 .book-page-ornament { position: absolute; top: 48%; left: 0; right: 0; text-align: center; color: #d4d7c9; font-size: 18px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .book-measure-page { left: var(--page-w); visibility: hidden; pointer-events: none; }
 .book-measure-text { overflow: hidden; }
 .book-cover-hinge { position: absolute; z-index: 5; top: -8px; bottom: -8px; left: calc(var(--page-w) - 3px); width: calc(var(--page-w) + 11px); transform-style: preserve-3d; transform-origin: left center; transition: transform .8s cubic-bezier(.25,.65,.3,1); }

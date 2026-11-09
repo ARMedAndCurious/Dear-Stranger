@@ -18,6 +18,21 @@ beforeAll(async () => { if (!process.env.TEST_MONGODB_URI) mongo = await MongoMe
 afterAll(async () => { await mongoose.disconnect(); if (mongo) await mongo.stop(); });
 beforeEach(async () => { await User.deleteMany(); await Notebook.deleteMany(); await Advice.deleteMany(); });
 describe('foundation API', () => {
+  it('stores optional notebook categories and keeps older uncategorized notebooks discoverable', async () => {
+    const owner = await agent(); const signup = await register(owner.client, owner.token);
+    const created = await owner.client.post('/api/notebooks').set('X-CSRF-Token', signup.body.csrfToken).send({ ...book, visibility: 'public', category: 'Family' });
+    expect(created.status).toBe(201);
+    expect((await Notebook.findOne({ slug: created.body.notebook.slug })).category).toBe('Family');
+    expect((await owner.client.post('/api/notebooks').set('X-CSRF-Token', signup.body.csrfToken).send({ ...book, visibility: 'public', category: 'secret' })).status).toBe(400);
+    const older = await Notebook.create({ ...book, owner: signup.body.user.id, slug: 'older-book', visibility: 'public' });
+    const filtered = await request(app).get('/api/notebooks/discover/list?category=Family');
+    expect(filtered.body.notebooks.map(n => n.slug)).toEqual([created.body.notebook.slug]);
+    const uncategorized = await request(app).get('/api/notebooks/discover/list?category=Uncategorized');
+    expect(uncategorized.body.notebooks.map(n => n.slug)).toContain(older.slug);
+    expect((await request(app).get('/api/notebooks/discover/list?category=Family&search=nope')).body.total).toBe(0);
+    expect((await request(app).get('/api/notebooks/discover/list?category=Family&page=2')).body.notebooks).toHaveLength(0);
+    expect((await request(app).get('/api/notebooks/discover/list?category=invalid')).status).toBe(400);
+  });
   it('registers, persists a session, logs out and logs back in', async () => {
     const { client, token } = await agent(); const signup = await register(client, token); expect(signup.status).toBe(200); expect(signup.body.user.email).toBe(credentials.email); expect(JSON.stringify(signup.body)).not.toContain('password');
     expect((await client.get('/api/auth/me')).body.user.email).toBe(credentials.email);
