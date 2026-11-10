@@ -4,6 +4,8 @@
 
 **[Try Dear, Stranger.](https://dear-stranger-omega.vercel.app)**
 
+**[Read the One-Page Solution Pitch](SOLUTION_PITCH.md)**
+
 Dear, Stranger. is a multilingual anonymous advice notebook: a quiet place to share meaningful words without revealing a public identity, and to return to another person's perspective when you need it.
 
 ## The Problem
@@ -21,7 +23,7 @@ Voice recordings are sent to Gnani for transcription, but the application does n
 ## Features
 
 - **Personal notebooks:** Create and manage a notebook with an automatically generated, shareable link and an optional notebook category. Visibility still defaults to unlisted when creating a notebook.
-- **Public discovery:** Explore and search public notebooks by title or category. Existing notebooks without a category appear as “Uncategorized.” Unlisted notebooks remain accessible only through their links.
+- **Genre-based discovery:** Explore and search public notebooks by title or category. Existing notebooks without a category appear as “Uncategorized.” Unlisted notebooks remain accessible only through their links.
 - **Anonymous contributions:** Visitors can submit written advice without an account or name.
 - **Speech to text:** Record a short message for Gnani AI Prisma transcription, then edit the transcript before submission.
 - **Multilingual reading:** Request translations into English, Hindi, Kannada, Tamil, Bengali, Gujarati, Malayalam, Marathi, Punjabi, or Telugu. Original text remains available.
